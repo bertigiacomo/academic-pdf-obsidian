@@ -8,7 +8,7 @@ import { defineConfig } from "vitest/config";
 // because this alias only applies to the test runner.
 export default defineConfig({
   test: {
-    setupFiles: ["src/academic/test-utils/setup.ts"],
+    setupFiles: ["src/academic/__tests__/setup.ts"],
   },
   resolve: {
     alias: {

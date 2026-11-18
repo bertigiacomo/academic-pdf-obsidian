@@ -80,7 +80,7 @@ export function columnShares(cols: ColumnStats[], lineWidth: number, padPx: numb
 type Measure = (text: string, font: string) => number;
 
 function canvasMeasure(): Measure | null {
-  const ctx = activeDocument.createElement("canvas").getContext("2d");
+  const ctx = createEl("canvas").getContext("2d");
   if (!ctx) return null;
   const cache = new Map<string, number>();
   return (text, font) => {
@@ -159,10 +159,10 @@ export function fitTables(roots: HTMLElement[], lineWidth: number, fonts: Fonts)
       if (!shares) continue;
       table.classList.add("apdf-wide");
       table.classList.toggle("apdf-hyphenate", needsHyphenation(stats, lineWidth, padPx));
-      const group = table.ownerDocument.createElement("colgroup");
+      const group = createEl("colgroup");
       group.className = "apdf-cols";
       for (const share of shares) {
-        const col = group.appendChild(table.ownerDocument.createElement("col"));
+        const col = group.createEl("col");
         col.setCssStyles({ width: `${(share * 100).toFixed(2)}%` });
       }
       table.prepend(group);

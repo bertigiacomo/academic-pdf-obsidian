@@ -1,6 +1,6 @@
 {
   "name": "academic-pdf",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Export notes as LaTeX-quality PDFs: academic typography, theorem and algorithm blocks, Booktabs tables, table of contents, and live paginated preview.",
   "author": "Giacomo Berti",
   "repository": {

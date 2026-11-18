@@ -17,7 +17,7 @@ export default defineConfig([
   {
     // Tests build their DOM fixtures from HTML literals and poke at private
     // state. They never ship, and the community scanner does not lint them.
-    files: ["**/*.test.ts", "src/__mocks__/**", "src/academic/test-utils/**"],
+    files: ["**/*.test.ts", "src/__mocks__/**", "src/academic/__tests__/**"],
     rules: {
       "no-unsanitized/property": "off",
       "@microsoft/sdl/no-inner-html": "off",

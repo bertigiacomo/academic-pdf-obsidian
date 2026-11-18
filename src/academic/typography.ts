@@ -95,9 +95,7 @@ function glueMath(block: HTMLElement): void {
     const after = nextNode?.instanceOf(Text) ? nextNode.data : "";
     const { lead, trail } = attachedRuns(before, after);
     if (lead === 0 && trail === 0) continue;
-    const doc = math.ownerDocument;
-    const wrap = doc.createElement("span");
-    wrap.className = "apdf-nobr";
+    const wrap = createSpan({ cls: "apdf-nobr" });
     math.parentNode?.insertBefore(wrap, math);
     if (lead > 0 && prevNode?.instanceOf(Text)) {
       const tail = prevNode.splitText(prevNode.data.length - lead);
@@ -125,7 +123,7 @@ function breakUrls(block: HTMLElement): void {
     let from = 0;
     for (const at of [...cuts, url.length]) {
       a.appendChild(doc.createTextNode(url.slice(from, at)));
-      if (at < url.length) a.appendChild(doc.createElement("wbr"));
+      if (at < url.length) a.createEl("wbr");
       from = at;
     }
   }

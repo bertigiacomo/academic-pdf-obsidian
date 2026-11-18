@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import "./test-utils/dom";
+import "./__tests__/dom";
 import { describe, expect, it } from "vitest";
 import { academicMeta, frontmatterYaml, readAcademicMeta } from "./frontmatter";
 import { applyHeadingNumbers, headingNumbers, stripManualNumber, TITLE_HEADING_ATTR } from "./heading-numbers";

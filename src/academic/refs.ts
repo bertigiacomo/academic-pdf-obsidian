@@ -30,8 +30,8 @@ export function refText(label: string, labels: ReadonlyMap<string, LabelInfo>): 
 // Parts of a rendered tree where `\ref` is literal text, not a reference.
 const SKIP = "code, pre, script, style, .math, mjx-container, .apdf-ref, .cm-inline-code";
 
-function refSpan(doc: Document, label: string, labels: ReadonlyMap<string, LabelInfo>): HTMLElement {
-  const span = doc.createElement("span");
+function refSpan(label: string, labels: ReadonlyMap<string, LabelInfo>): HTMLElement {
+  const span = createSpan();
   const info = labels.get(label);
   span.className = info ? "apdf-ref" : "apdf-ref apdf-ref--missing";
   span.textContent = refText(label, labels);
@@ -60,7 +60,7 @@ export function resolveRefs(root: ParentNode, labels: ReadonlyMap<string, LabelI
     let last = 0;
     for (const r of refs) {
       if (r.start > last) frag.append(node.data.slice(last, r.start));
-      frag.append(refSpan(doc, r.label, labels));
+      frag.append(refSpan(r.label, labels));
       last = r.end;
       count++;
     }

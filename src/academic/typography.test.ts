@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
-import "./test-utils/dom";
+import "./__tests__/dom";
 import { applyTypography, setLang, attachedRuns, looksLikeUrl, noteLang, smartQuotes, urlBreaks } from "./typography";
 import { headingDepths } from "./heading-numbers";
 import { sectionMarks } from "./running-head";

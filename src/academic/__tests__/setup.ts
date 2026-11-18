@@ -1,6 +1,6 @@
 // Vitest setup: Obsidian adds `instanceOf` (a cross-window `instanceof`) to
-// Node.prototype and `addClass` to Element.prototype. Tests run on happy-dom,
-// which lacks them.
+// Node.prototype, `addClass` to Element.prototype and the createEl helpers to
+// the window. Tests run on happy-dom, which lacks them.
 if (typeof Node !== "undefined" && !("instanceOf" in Node.prototype)) {
   Object.defineProperty(Node.prototype, "instanceOf", {
     configurable: true, writable: true,
@@ -13,5 +13,7 @@ if (typeof Element !== "undefined" && !("addClass" in Element.prototype)) {
     value: function (this: Element, ...cls: string[]) { this.classList.add(...cls); },
   });
 }
+
+if (typeof document !== "undefined") await import("./dom");
 
 export {};

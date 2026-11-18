@@ -46,7 +46,7 @@
 .apdf-algo-io {
   display: grid;
   grid-template-columns: max-content 1fr;
-  column-gap: 0.45em;
+  gap: 0 0.45em;
   margin: 0;
   padding: 0.4em 0 0.1em;
 }

@@ -12,7 +12,7 @@ export const STRUCTURE_CSS = `
   .mpdf-doc .apdf-titlepage .apdf-doc-title { font-size: 2.1em; }
   .mpdf-doc .apdf-doc-subtitle { font-size: 1.2em; margin-top: 0.5em; }
   .mpdf-doc .apdf-doc-authors {
-    display: flex; flex-wrap: wrap; justify-content: center; column-gap: 2.5em;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 0 2.5em;
     font-size: 1.15em; margin-top: 1.4em;
   }
   .mpdf-doc .apdf-titlepage .apdf-doc-authors { margin-top: 2.6em; }

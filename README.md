@@ -8,7 +8,7 @@ Academic PDF turns a Markdown note into a document that looks typeset with LaTeX
 
 > **Desktop only.** The PDF is made by the desktop app's print engine (Electron).
 
-Academic PDF is a fork of [Advanced PDF Export](https://github.com/ShrekBytes/advanced-pdf-export) by ShrekBytes. See [Credits](#credits).
+Academic PDF is based on [Advanced PDF Export](https://github.com/ShrekBytes/advanced-pdf-export) by ShrekBytes. See [Credits](#credits).
 
 ## Features
 
@@ -131,20 +131,25 @@ Everything is under **Settings → Academic PDF**, and the most-used settings ar
 - **Header and footer:** page numbers and their format, a running head with `{{title}}` and `{{date}}`.
 - **Export:** PDF bookmarks, file name as title, where to save.
 
+## Privacy and permissions
+
+- **Files outside the vault:** to save the PDF where you choose in the save dialog, the plugin writes that one file with Node's `fs` module. It reads notes only through Obsidian's API and writes nothing else outside the vault.
+- **Clipboard:** when a preview fails, **Copy details** puts the error message on the clipboard. Nothing is read from the clipboard.
+- **Network:** no requests of its own, no telemetry, no accounts. The fonts are bundled; images linked from your notes load as they do in Obsidian.
+
 ## Credits
 
-Academic PDF is a fork of [Advanced PDF Export](https://github.com/ShrekBytes/advanced-pdf-export) 4.8.0 by [ShrekBytes](https://github.com/ShrekBytes), released under the GNU GPL v3. Its pagination engine, Electron export pipeline, PDF outline, MathJax and Mermaid handling are the foundation this plugin is built on. If you want general-purpose PDF export with style presets, use the original.
+Academic PDF is a modified version of [Advanced PDF Export](https://github.com/ShrekBytes/advanced-pdf-export) 4.8.0 by [ShrekBytes](https://github.com/ShrekBytes), released under the GNU GPL v3. Its pagination engine, Electron export pipeline, PDF outline, MathJax and Mermaid handling are the foundation this plugin is built on.
 
-What this fork changes:
+Modified in November 2026 by Giacomo Berti, who added:
 
-- **Look:** one LaTeX stylesheet with bundled Computer Modern fonts replaces the seven style presets.
+- **Look:** a LaTeX stylesheet with bundled Computer Modern fonts.
 - **Academic blocks:** theorem-family, algorithm and box blocks, rendered in Obsidian's live preview and reading view as well as in the PDF.
 - **Cross-references:** `\ref{}` with LaTeX-style numbering.
 - **Document structure:** title page from the frontmatter (editable in the export window), multi-page table of contents, numbered headings, roman and arabic page numbers with PDF page labels, running heads.
 - **Tables and figures:** Booktabs tables with proportional column widths; images that shrink to fit what is left of a page; figure captions.
 - **Typography:** justification with language-aware hyphenation, no line breaks next to inline maths, break points in long URLs.
-- **Interface:** a live preview pane beside the note with incremental re-layout and progress, a redesigned export window, click-to-insert page breaks (`%% page break %%` replaces `///`), commands and menus.
-- **Removed:** the style presets, code syntax themes and background images (no longer in the settings), and the in-app release notes.
+- **Interface:** a live preview pane beside the note with incremental re-layout and progress, the export window, click-to-insert page breaks, commands and menus.
 
 ## License
 
