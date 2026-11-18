@@ -1,0 +1,251 @@
+/*
+ * Academic PDF: academic block styles (mockup).
+ *
+ * ONE stylesheet for all three contexts: Obsidian live preview, the export
+ * panel preview and the PDF. It reads only Obsidian's own variables
+ * (--text-normal, --background-primary, --font-text, ...). Each context
+ * defines those variables; the "paper" variant (D1-b) redefines them on the
+ * block itself. Nothing here knows which context it is in.
+ *
+ * Reference: amsthm (theorem family), algorithm2e "ruled + vlined"
+ * (algorithms), a sober tcolorbox (boxes), hyperref with hidelinks (\ref).
+ */
+
+.apdf-block {
+  --apdf-ink: var(--text-normal);
+  --apdf-muted: var(--text-muted);
+  --apdf-faint: var(--text-faint);
+  --apdf-bg: var(--background-primary);
+  --apdf-serif: var(--apdf-block-font, var(--font-text));
+  --apdf-mono: var(--apdf-block-mono, var(--font-monospace));
+  /* Thin rules: 0.4pt / 0.8pt as in LaTeX. */
+  --apdf-rule-thin: 0.4pt;
+  --apdf-rule-thick: 0.8pt;
+  --apdf-indent: 1.1em;
+
+  color: var(--apdf-ink);
+  font-family: var(--apdf-serif);
+  margin: 1.1em 0;
+}
+
+/* ───────────────────────── Algorithm (algorithm2e, ruled + vlined) ── */
+
+.apdf-algo {
+  border-top: var(--apdf-rule-thick) solid var(--apdf-ink);
+  border-bottom: var(--apdf-rule-thick) solid var(--apdf-ink);
+  line-height: 1.42;
+}
+
+.apdf-algo-caption {
+  padding: 0.3em 0 0.32em;
+  border-bottom: var(--apdf-rule-thin) solid var(--apdf-ink);
+}
+.apdf-algo-caption b { font-weight: 700; }
+.apdf-algo-name { font-variant-caps: small-caps; letter-spacing: 0.01em; }
+
+.apdf-algo-io {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 0.45em;
+  margin: 0;
+  padding: 0.4em 0 0.1em;
+}
+.apdf-algo-io dt { font-weight: 700; }
+.apdf-algo-io dd { margin: 0; }
+
+.apdf-algo .apdf-algo-body {
+  list-style: none;
+  margin: 0;
+  padding: 0.25em 0 0.35em;
+  counter-reset: apdf-line;
+}
+/* Number and code share one flex line, aligned on the text baseline; the
+   number column has a fixed width in the block's em, not the number's. */
+.apdf-algo .apdf-algo-body > li {
+  margin: 0;
+  padding: 0;
+  counter-increment: apdf-line;
+  display: flex;
+  align-items: baseline;
+}
+.apdf-algo .apdf-algo-body > li::before {
+  content: counter(apdf-line);
+  flex: 0 0 calc(1.3em / 0.7);
+  margin-right: calc(0.75em / 0.7);
+  text-align: right;
+  font-size: 0.7em;
+  line-height: 1;
+  color: var(--apdf-muted);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--apdf-serif);
+  user-select: none;
+}
+
+/* A line: statement + optional comment. Indent guides are drawn as a
+   background so they join across lines without extra elements. */
+.apdf-l {
+  --d: 0;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  padding-left: calc(var(--d) * var(--apdf-indent));
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--apdf-ink) 28%, transparent) 0 var(--apdf-rule-thin),
+    transparent var(--apdf-rule-thin) var(--apdf-indent)
+  );
+  background-repeat: no-repeat;
+  /* Each guide sits under the first letter of the line that opens the block. */
+  background-position: 0.18em 0;
+  background-size: calc(var(--d) * var(--apdf-indent)) 100%;
+}
+.d1 .apdf-l { --d: 1; }
+.d2 .apdf-l { --d: 2; }
+.d3 .apdf-l { --d: 3; }
+.d4 .apdf-l { --d: 4; }
+
+.apdf-k { font-weight: 700; }
+
+.apdf-c {
+  margin-left: auto;
+  padding-left: 1.5em;
+  font-style: italic;
+  color: var(--apdf-muted);
+  white-space: nowrap;
+}
+/* The comment mark (algorithm2e's \tcp, a ▷) is drawn, not a glyph: CMU has
+   no U+25B7, and a system fallback font would end up in the PDF. */
+.apdf-c::before {
+  content: "";
+  display: inline-block;
+  width: 0.62em;
+  height: 0.7em;
+  margin-right: 0.28em;
+  vertical-align: -0.04em;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 62 70'%3E%3Cpath d='M4 4 L58 35 L4 66 Z' fill='none' stroke='black' stroke-width='5' stroke-linejoin='miter'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 62 70'%3E%3Cpath d='M4 4 L58 35 L4 66 Z' fill='none' stroke='black' stroke-width='5' stroke-linejoin='miter'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Mono mode: typewriter for code, comments stay inline after "//". */
+.apdf-algo--mono .apdf-s,
+.apdf-algo--mono .apdf-algo-io dd,
+.apdf-algo--mono .apdf-algo-caption .apdf-sig {
+  font-family: var(--apdf-mono);
+  font-size: 0.92em;
+}
+.apdf-algo--mono .apdf-algo-name { font-variant-caps: normal; letter-spacing: 0; }
+.apdf-algo--mono .apdf-c {
+  margin-left: 0.9em;
+  padding-left: 0;
+  font-family: var(--apdf-mono);
+  font-size: 0.92em;
+  font-style: normal;
+}
+.apdf-algo--mono .apdf-c::before {
+  content: "// "; display: inline; width: auto; height: auto; margin: 0;
+  background: none; -webkit-mask: none; mask: none;
+}
+
+/* ───────────────────────────────────── Theorem family (amsthm) ── */
+
+.apdf-thm { line-height: inherit; }
+.apdf-thm > p { margin: 0 0 0.45em; }
+.apdf-thm > p:last-child { margin-bottom: 0; }
+
+/* Run-in head, as amsthm: "Theorem 1 (Note). Body…" */
+.apdf-thm-head { font-weight: 700; font-style: normal; margin-right: 0.3em; }
+.apdf-thm-note { font-weight: 400; }
+
+/* plain style: theorem, lemma, corollary */
+.apdf-thm--plain { font-style: italic; }
+/* definition style: definition */
+.apdf-thm--definition { font-style: normal; }
+/* remark style: remark (italic head, upright body) */
+.apdf-thm--remark { font-style: normal; }
+.apdf-thm--remark .apdf-thm-head { font-weight: 400; font-style: italic; }
+
+/* proof */
+.apdf-proof { font-style: normal; }
+.apdf-proof .apdf-thm-head { font-weight: 400; font-style: italic; }
+/* QED box drawn, not a glyph: CMU has no U+25A1. */
+.apdf-qed {
+  float: right;
+  margin: 0.32em 0 0 1em;
+  width: 0.6em;
+  height: 0.6em;
+  border: 0.5pt solid currentColor;
+}
+
+/* ─────────────────────────────────────── Boxes (sober tcolorbox) ── */
+
+.apdf-box {
+  --apdf-hue: #4a6fa5;
+  padding: 0.6em 0.9em 0.65em;
+  border: 0.5pt solid color-mix(in oklab, var(--apdf-hue) var(--apdf-box-frame, 48%), var(--apdf-bg));
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--apdf-hue) var(--apdf-box-tint, 6%), var(--apdf-bg));
+  line-height: inherit;
+}
+.apdf-box > p { margin: 0 0 0.45em; }
+.apdf-box > p:last-child { margin-bottom: 0; }
+.apdf-box-title {
+  display: block;
+  margin-bottom: 0.25em;
+  font-weight: 700;
+  color: color-mix(in oklab, var(--apdf-hue) var(--apdf-box-title, 78%), var(--apdf-ink));
+}
+
+/* Inks, not signal colours: muted, print-safe, distinct in greyscale. */
+.apdf-box--blue   { --apdf-hue: #3d68a8; }
+.apdf-box--teal   { --apdf-hue: #237a74; }
+.apdf-box--green  { --apdf-hue: #4b7a35; }
+.apdf-box--purple { --apdf-hue: #6a4f9c; }
+.apdf-box--amber  { --apdf-hue: #a8700c; }
+.apdf-box--red    { --apdf-hue: #ad3f36; }
+
+/* ───────────────────────────────────────────── \ref (hidelinks) ── */
+
+.apdf-ref { color: inherit; text-decoration: none; font-style: normal; }
+.apdf-ref--missing { font-weight: 700; font-style: normal; }
+
+/* ─────────────────── Obsidian-only contexts (live preview) ──────────────
+   The PDF and the export preview never match these: `body.apdf-live` is set
+   by the plugin on Obsidian's own window, and the preview lives in a shadow
+   root that these selectors do not cross. */
+
+/* Dark theme: boxes need a stronger tint and a lighter title. */
+.theme-dark .apdf-block {
+  --apdf-box-tint: 15%;
+  --apdf-box-frame: 58%;
+  --apdf-box-title: 38%;
+}
+
+/* \ref: a dotted underline shows the number is a link target; an unresolved
+   one is flagged in the theme's error colour. */
+body.apdf-live .apdf-ref { border-bottom: 1px dotted color-mix(in oklab, var(--text-normal) 35%, transparent); }
+body.apdf-live .apdf-ref--missing { color: var(--text-error); border-bottom: 0; }
+
+/* Option "paper" (D1-b): each block becomes a white cut-out of the PDF. The
+   sheet bleeds into the gutter, so the text column and the block's
+   proportions stay those of the PDF. Boxes are already a sheet. */
+body.apdf-paper .apdf-sheet {
+  margin: 1.1em -16px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px #e4e4e4;
+}
+body.apdf-paper.theme-dark .apdf-sheet { box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.6); }
+body.apdf-paper .apdf-sheet > .apdf-block {
+  --background-primary: #ffffff;
+  --text-normal: #000000;
+  --text-muted: #4a4a4a;
+  --text-faint: #8a8a8a;
+  --apdf-box-tint: 6%;
+  --apdf-box-frame: 48%;
+  --apdf-box-title: 78%;
+  margin: 0;
+}
+body.apdf-paper .apdf-sheet .apdf-ref--missing { color: inherit; }

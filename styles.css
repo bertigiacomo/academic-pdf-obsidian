@@ -1,0 +1,886 @@
+/* Academic PDF: plugin styles */
+
+/* ── Preview surfaces: shared by the PDF preview pane and the export modal ── */
+
+.apdf-is-hidden.apdf-is-hidden {
+  display: none;
+}
+
+/* Offscreen hosts for rendering and measuring (markdown.ts, paginator.ts). */
+.apdf-offscreen {
+  position: fixed;
+  top: 0;
+  left: -99999px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.apdf-sandbox {
+  z-index: -1;
+}
+
+.apdf-toolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+}
+
+.apdf-grow {
+  flex: 1;
+}
+
+.apdf-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: var(--background-modifier-border);
+}
+
+.apdf-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.apdf-count.mod-warning {
+  color: var(--text-warning);
+}
+
+.apdf-count .svg-icon,
+.apdf-hint .svg-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.apdf-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.apdf-hint > span {
+  display: inline-flex;
+}
+
+.apdf-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.apdf-zoom-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: var(--radius-s);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  cursor: var(--cursor);
+}
+
+.apdf-zoom-level:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.apdf-zoom-chevron {
+  display: inline-flex;
+}
+
+.apdf-zoom-chevron .svg-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Thin progress line under the toolbar while rendering. */
+.apdf-progress {
+  flex: none;
+  height: 2px;
+  overflow: hidden;
+  visibility: hidden;
+  background: var(--background-modifier-border);
+}
+
+.apdf-progress.is-active {
+  visibility: visible;
+}
+
+.apdf-progress i {
+  display: block;
+  width: 38%;
+  height: 100%;
+  background: var(--interactive-accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .apdf-progress.is-active i {
+    animation: apdf-slide 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .apdf-progress i {
+    width: 100%;
+    opacity: 0.4;
+  }
+}
+
+/* A long render shows its real share instead of the sliding line. */
+.apdf-progress.is-determinate i {
+  width: var(--apdf-progress, 0%);
+  transform: none;
+  animation: none;
+  opacity: 1;
+  transition: width 0.2s ease-out;
+}
+
+@keyframes apdf-slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(270%); }
+}
+
+/* "Content cut off" warning, fixed under the toolbar. */
+.apdf-notice {
+  flex: none;
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: color-mix(in oklab, var(--text-warning) 9%, var(--background-primary));
+  font-size: var(--font-ui-smaller);
+  line-height: 1.45;
+}
+
+.apdf-notice.is-active {
+  display: flex;
+}
+
+.apdf-notice-icon {
+  display: inline-flex;
+  margin-top: 1px;
+  color: var(--text-warning);
+}
+
+.apdf-notice-icon .svg-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.apdf-notice-msg {
+  flex: 1;
+  color: var(--text-muted);
+}
+
+.apdf-notice-msg b {
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.apdf-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-secondary);
+}
+
+/* The scrolling column (or two-up grid) of pages. */
+.apdf-canvas {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 16px 24px;
+}
+
+.apdf-canvas.is-two-up {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  gap: 24px;
+}
+
+.apdf-canvas.is-updating .apdf-page {
+  opacity: 0.55;
+  transition: opacity 150ms ease-out;
+}
+
+/* One page: the scaled footprint; width and height set from the zoom. */
+.apdf-page {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18), 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+
+.apdf-page.is-pb-hover {
+  cursor: pointer;
+}
+
+/* The unscaled page in its shadow root; size and transform set from code. */
+.mpdf-shadow-host {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+/* Centred state messages (no note, empty note, error) and skeleton pages. */
+.apdf-state {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  text-align: center;
+}
+
+.apdf-state h4 {
+  margin: 4px 0 0;
+  font-size: var(--font-ui-medium);
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.apdf-state p {
+  max-width: 34ch;
+  margin: 0;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+
+.apdf-state pre {
+  max-width: 100%;
+  margin: 4px 0 2px;
+  padding: 8px 10px;
+  overflow: auto;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  font: 11.5px/1.45 var(--font-monospace);
+  color: var(--text-muted);
+  text-align: left;
+  white-space: pre-wrap;
+  user-select: text;
+}
+
+.apdf-state-icon {
+  display: inline-flex;
+  color: var(--text-faint);
+}
+
+.apdf-state-icon .svg-icon {
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.5px;
+}
+
+.apdf-state-icon.mod-error {
+  color: var(--text-error);
+}
+
+.apdf-state-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.apdf-state.mod-skeleton {
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 18px 16px;
+  overflow: hidden;
+}
+
+.apdf-skeleton {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: min(100%, 520px);
+  aspect-ratio: 1 / 1.414;
+  padding: 9% 12%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18), 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+
+.apdf-skeleton i {
+  display: block;
+  height: 7px;
+  border-radius: 3px;
+  background: #ececec;
+}
+
+.apdf-skeleton i.mod-h {
+  width: 45%;
+  height: 11px;
+  margin: 6px 0 4px;
+  background: #e2e2e2;
+}
+
+.apdf-skeleton i.mod-s {
+  width: 70%;
+}
+
+.apdf-skeleton i.mod-b {
+  height: 46px;
+  background: #f2f2f2;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .apdf-skeleton i {
+    animation: apdf-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes apdf-pulse {
+  50% { opacity: 0.55; }
+}
+
+/* ── PDF preview pane ─────────────────────────────────────────────────────── */
+
+.apdf-pane.view-content {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.apdf-pane .clickable-icon.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.apdf-pane .apdf-export-btn {
+  flex: none;
+  gap: 6px;
+  margin-left: 6px;
+}
+
+.apdf-export-icon {
+  display: none;
+}
+
+/* The pane usually lives in a narrow sidebar: below 360 px the zoom keeps
+   only its menu and Export… becomes an icon button (its tooltip names it). */
+.apdf-pane {
+  container-type: inline-size;
+}
+
+.apdf-pane .apdf-toolbar {
+  min-width: 0;
+  padding: 6px 8px;
+}
+
+.apdf-pane .apdf-count {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@container (max-width: 360px) {
+  .apdf-pane .apdf-zoom-step {
+    display: none;
+  }
+
+  .apdf-pane .apdf-sep {
+    margin: 0 2px;
+  }
+
+  .apdf-pane .apdf-export-label {
+    display: none;
+  }
+
+  .apdf-pane .apdf-export-icon {
+    display: inline-flex;
+  }
+
+  .apdf-pane .apdf-export-btn {
+    padding: 0 8px;
+  }
+}
+
+.view-header-title .apdf-crumb {
+  color: var(--text-faint);
+}
+
+/* ── Export modal ─────────────────────────────────────────────────────────── */
+
+.apdf-export-modal {
+  width: 96vw;
+  max-width: 1800px;
+  height: 90vh;
+  max-height: 90vh;
+  padding: 0;
+  overflow: hidden;
+}
+
+.apdf-export-modal .modal-content {
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.apdf-export-modal .modal-header {
+  display: none;
+}
+
+.apdf-xm {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  height: 100%;
+}
+
+.apdf-xm-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--background-secondary);
+  border-right: 1px solid var(--background-modifier-border);
+}
+
+.apdf-xm-head {
+  padding: 20px 18px 12px;
+}
+
+.apdf-xm-title {
+  font-size: var(--font-ui-large);
+  font-weight: 650;
+  color: var(--text-normal);
+}
+
+.apdf-xm-sub {
+  margin-top: 2px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.apdf-xm-groups {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 18px;
+}
+
+.apdf-xm-group {
+  padding: 12px 0 6px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.apdf-xm-group:first-child {
+  border-top: 0;
+}
+
+.apdf-xm-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+/* Beats Obsidian's .modal:not(.mod-settings) .setting-item:not(…) rule. */
+.modal.apdf-export-modal .apdf-xm-group .setting-item.setting-item {
+  gap: 8px;
+  padding: 5px 0 5px 24px;
+  border-top: 0;
+}
+
+.apdf-export-modal .apdf-xm-group .setting-item-info {
+  flex: 1 0 auto;
+  margin-right: 0;
+}
+
+.apdf-export-modal .apdf-xm-group .setting-item-name {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+
+.apdf-export-modal .apdf-xm-group .setting-item-control {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.apdf-export-modal .apdf-xm-group select.dropdown {
+  max-width: 150px;
+  text-overflow: ellipsis;
+}
+
+.apdf-export-modal .apdf-xm-group input[type="number"],
+.apdf-export-modal .apdf-xm-group input[type="text"] {
+  width: 120px;
+}
+
+.apdf-export-modal .apdf-xm-group input[type="number"] {
+  width: 64px;
+}
+
+/* Group icons, in the modal and on the settings page. */
+.apdf-heading-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.apdf-heading-icon {
+  display: inline-flex;
+  color: var(--text-muted);
+}
+
+.apdf-heading-icon .svg-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.apdf-xm-foot {
+  padding: 12px 18px;
+  border-top: 1px solid var(--background-modifier-border);
+  font-size: var(--font-ui-smaller);
+}
+
+.apdf-xm-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-accent);
+  text-decoration: none;
+}
+
+.apdf-xm-foot a span {
+  display: inline-flex;
+}
+
+.apdf-xm-foot .svg-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.apdf-xm-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Room on the right for the modal's close button. */
+.apdf-xm-main .apdf-toolbar {
+  padding: 10px 52px 10px 16px;
+}
+
+.apdf-xm .modal-button-container.apdf-xm-buttons {
+  flex: none;
+  margin: 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+}
+
+.apdf-xm-saved {
+  margin-right: auto;
+  align-self: center;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+/* Insert academic block: the fence name on the right. */
+.apdf-fence-name {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+}
+
+/* >>> academic blocks (generated from src/academic/blocks.css: do not edit) >>> */
+/*
+ * Academic PDF: academic block styles (mockup).
+ *
+ * ONE stylesheet for all three contexts: Obsidian live preview, the export
+ * panel preview and the PDF. It reads only Obsidian's own variables
+ * (--text-normal, --background-primary, --font-text, ...). Each context
+ * defines those variables; the "paper" variant (D1-b) redefines them on the
+ * block itself. Nothing here knows which context it is in.
+ *
+ * Reference: amsthm (theorem family), algorithm2e "ruled + vlined"
+ * (algorithms), a sober tcolorbox (boxes), hyperref with hidelinks (\ref).
+ */
+
+.apdf-block {
+  --apdf-ink: var(--text-normal);
+  --apdf-muted: var(--text-muted);
+  --apdf-faint: var(--text-faint);
+  --apdf-bg: var(--background-primary);
+  --apdf-serif: var(--apdf-block-font, var(--font-text));
+  --apdf-mono: var(--apdf-block-mono, var(--font-monospace));
+  /* Thin rules: 0.4pt / 0.8pt as in LaTeX. */
+  --apdf-rule-thin: 0.4pt;
+  --apdf-rule-thick: 0.8pt;
+  --apdf-indent: 1.1em;
+
+  color: var(--apdf-ink);
+  font-family: var(--apdf-serif);
+  margin: 1.1em 0;
+}
+
+/* ───────────────────────── Algorithm (algorithm2e, ruled + vlined) ── */
+
+.apdf-algo {
+  border-top: var(--apdf-rule-thick) solid var(--apdf-ink);
+  border-bottom: var(--apdf-rule-thick) solid var(--apdf-ink);
+  line-height: 1.42;
+}
+
+.apdf-algo-caption {
+  padding: 0.3em 0 0.32em;
+  border-bottom: var(--apdf-rule-thin) solid var(--apdf-ink);
+}
+.apdf-algo-caption b { font-weight: 700; }
+.apdf-algo-name { font-variant-caps: small-caps; letter-spacing: 0.01em; }
+
+.apdf-algo-io {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 0.45em;
+  margin: 0;
+  padding: 0.4em 0 0.1em;
+}
+.apdf-algo-io dt { font-weight: 700; }
+.apdf-algo-io dd { margin: 0; }
+
+.apdf-algo .apdf-algo-body {
+  list-style: none;
+  margin: 0;
+  padding: 0.25em 0 0.35em;
+  counter-reset: apdf-line;
+}
+/* Number and code share one flex line, aligned on the text baseline; the
+   number column has a fixed width in the block's em, not the number's. */
+.apdf-algo .apdf-algo-body > li {
+  margin: 0;
+  padding: 0;
+  counter-increment: apdf-line;
+  display: flex;
+  align-items: baseline;
+}
+.apdf-algo .apdf-algo-body > li::before {
+  content: counter(apdf-line);
+  flex: 0 0 calc(1.3em / 0.7);
+  margin-right: calc(0.75em / 0.7);
+  text-align: right;
+  font-size: 0.7em;
+  line-height: 1;
+  color: var(--apdf-muted);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--apdf-serif);
+  user-select: none;
+}
+
+/* A line: statement + optional comment. Indent guides are drawn as a
+   background so they join across lines without extra elements. */
+.apdf-l {
+  --d: 0;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  padding-left: calc(var(--d) * var(--apdf-indent));
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--apdf-ink) 28%, transparent) 0 var(--apdf-rule-thin),
+    transparent var(--apdf-rule-thin) var(--apdf-indent)
+  );
+  background-repeat: no-repeat;
+  /* Each guide sits under the first letter of the line that opens the block. */
+  background-position: 0.18em 0;
+  background-size: calc(var(--d) * var(--apdf-indent)) 100%;
+}
+.d1 .apdf-l { --d: 1; }
+.d2 .apdf-l { --d: 2; }
+.d3 .apdf-l { --d: 3; }
+.d4 .apdf-l { --d: 4; }
+
+.apdf-k { font-weight: 700; }
+
+.apdf-c {
+  margin-left: auto;
+  padding-left: 1.5em;
+  font-style: italic;
+  color: var(--apdf-muted);
+  white-space: nowrap;
+}
+/* The comment mark (algorithm2e's \tcp, a ▷) is drawn, not a glyph: CMU has
+   no U+25B7, and a system fallback font would end up in the PDF. */
+.apdf-c::before {
+  content: "";
+  display: inline-block;
+  width: 0.62em;
+  height: 0.7em;
+  margin-right: 0.28em;
+  vertical-align: -0.04em;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 62 70'%3E%3Cpath d='M4 4 L58 35 L4 66 Z' fill='none' stroke='black' stroke-width='5' stroke-linejoin='miter'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 62 70'%3E%3Cpath d='M4 4 L58 35 L4 66 Z' fill='none' stroke='black' stroke-width='5' stroke-linejoin='miter'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Mono mode: typewriter for code, comments stay inline after "//". */
+.apdf-algo--mono .apdf-s,
+.apdf-algo--mono .apdf-algo-io dd,
+.apdf-algo--mono .apdf-algo-caption .apdf-sig {
+  font-family: var(--apdf-mono);
+  font-size: 0.92em;
+}
+.apdf-algo--mono .apdf-algo-name { font-variant-caps: normal; letter-spacing: 0; }
+.apdf-algo--mono .apdf-c {
+  margin-left: 0.9em;
+  padding-left: 0;
+  font-family: var(--apdf-mono);
+  font-size: 0.92em;
+  font-style: normal;
+}
+.apdf-algo--mono .apdf-c::before {
+  content: "// "; display: inline; width: auto; height: auto; margin: 0;
+  background: none; -webkit-mask: none; mask: none;
+}
+
+/* ───────────────────────────────────── Theorem family (amsthm) ── */
+
+.apdf-thm { line-height: inherit; }
+.apdf-thm > p { margin: 0 0 0.45em; }
+.apdf-thm > p:last-child { margin-bottom: 0; }
+
+/* Run-in head, as amsthm: "Theorem 1 (Note). Body…" */
+.apdf-thm-head { font-weight: 700; font-style: normal; margin-right: 0.3em; }
+.apdf-thm-note { font-weight: 400; }
+
+/* plain style: theorem, lemma, corollary */
+.apdf-thm--plain { font-style: italic; }
+/* definition style: definition */
+.apdf-thm--definition { font-style: normal; }
+/* remark style: remark (italic head, upright body) */
+.apdf-thm--remark { font-style: normal; }
+.apdf-thm--remark .apdf-thm-head { font-weight: 400; font-style: italic; }
+
+/* proof */
+.apdf-proof { font-style: normal; }
+.apdf-proof .apdf-thm-head { font-weight: 400; font-style: italic; }
+/* QED box drawn, not a glyph: CMU has no U+25A1. */
+.apdf-qed {
+  float: right;
+  margin: 0.32em 0 0 1em;
+  width: 0.6em;
+  height: 0.6em;
+  border: 0.5pt solid currentColor;
+}
+
+/* ─────────────────────────────────────── Boxes (sober tcolorbox) ── */
+
+.apdf-box {
+  --apdf-hue: #4a6fa5;
+  padding: 0.6em 0.9em 0.65em;
+  border: 0.5pt solid color-mix(in oklab, var(--apdf-hue) var(--apdf-box-frame, 48%), var(--apdf-bg));
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--apdf-hue) var(--apdf-box-tint, 6%), var(--apdf-bg));
+  line-height: inherit;
+}
+.apdf-box > p { margin: 0 0 0.45em; }
+.apdf-box > p:last-child { margin-bottom: 0; }
+.apdf-box-title {
+  display: block;
+  margin-bottom: 0.25em;
+  font-weight: 700;
+  color: color-mix(in oklab, var(--apdf-hue) var(--apdf-box-title, 78%), var(--apdf-ink));
+}
+
+/* Inks, not signal colours: muted, print-safe, distinct in greyscale. */
+.apdf-box--blue   { --apdf-hue: #3d68a8; }
+.apdf-box--teal   { --apdf-hue: #237a74; }
+.apdf-box--green  { --apdf-hue: #4b7a35; }
+.apdf-box--purple { --apdf-hue: #6a4f9c; }
+.apdf-box--amber  { --apdf-hue: #a8700c; }
+.apdf-box--red    { --apdf-hue: #ad3f36; }
+
+/* ───────────────────────────────────────────── \ref (hidelinks) ── */
+
+.apdf-ref { color: inherit; text-decoration: none; font-style: normal; }
+.apdf-ref--missing { font-weight: 700; font-style: normal; }
+
+/* ─────────────────── Obsidian-only contexts (live preview) ──────────────
+   The PDF and the export preview never match these: `body.apdf-live` is set
+   by the plugin on Obsidian's own window, and the preview lives in a shadow
+   root that these selectors do not cross. */
+
+/* Dark theme: boxes need a stronger tint and a lighter title. */
+.theme-dark .apdf-block {
+  --apdf-box-tint: 15%;
+  --apdf-box-frame: 58%;
+  --apdf-box-title: 38%;
+}
+
+/* \ref: a dotted underline shows the number is a link target; an unresolved
+   one is flagged in the theme's error colour. */
+body.apdf-live .apdf-ref { border-bottom: 1px dotted color-mix(in oklab, var(--text-normal) 35%, transparent); }
+body.apdf-live .apdf-ref--missing { color: var(--text-error); border-bottom: 0; }
+
+/* Option "paper" (D1-b): each block becomes a white cut-out of the PDF. The
+   sheet bleeds into the gutter, so the text column and the block's
+   proportions stay those of the PDF. Boxes are already a sheet. */
+body.apdf-paper .apdf-sheet {
+  margin: 1.1em -16px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px #e4e4e4;
+}
+body.apdf-paper.theme-dark .apdf-sheet { box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.6); }
+body.apdf-paper .apdf-sheet > .apdf-block {
+  --background-primary: #ffffff;
+  --text-normal: #000000;
+  --text-muted: #4a4a4a;
+  --text-faint: #8a8a8a;
+  --apdf-box-tint: 6%;
+  --apdf-box-frame: 48%;
+  --apdf-box-title: 78%;
+  margin: 0;
+}
+body.apdf-paper .apdf-sheet .apdf-ref--missing { color: inherit; }
+/* <<< academic blocks <<< */
+
+/* "Edit title page": the abstract gets the full width under its label. */
+.apdf-title-modal .apdf-title-abstract {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--size-4-2);
+}
+
+.apdf-title-modal .apdf-title-abstract textarea {
+  width: 100%;
+  resize: vertical;
+}

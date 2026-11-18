@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Obsidian vault
+.obsidian/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Plugin settings (when symlinked into a vault)
+data.json
+
+# Build output (built by CI for releases)
+main.js
